@@ -23,8 +23,15 @@ public class CollectionController {
 	private Dao dao;
 
 	@RequestMapping(path="/collection", method=GET)
-	public @ResponseBody Set<Collection> getCollections(@AuthenticationPrincipal User user) {
+	@PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+	public @ResponseBody Set<Collection> getOwnCollections(@AuthenticationPrincipal User user) {
 		return user.getCollections();
+	}
+
+	@RequestMapping(path="/user/{userId}/collection", method=GET)
+	@PreAuthorize("hasAuthority('ADMIN') || (hasAuthority('USER') && principal.id == #userId)")
+	public @ResponseBody Set<Collection> getUsersCollections(@PathVariable("userId") long userId) {
+		return dao.getUsersCollections(userId);
 	}
 
 	@RequestMapping(path="/collection/{collectionId}", method=DELETE)

@@ -8,10 +8,16 @@ import org.springframework.security.core.GrantedAuthority;
 @SuppressWarnings("serial")
 public class User extends org.springframework.security.core.userdetails.User {
 
+	private final Long id;
 	private final Set<Group> groups = new HashSet<>();
 
-	public User(String username, String password, java.util.Collection<? extends GrantedAuthority> authorities) {
+	public User(Long id, String username, String password, java.util.Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
+		this.id = id;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public boolean addTo(Group group) {

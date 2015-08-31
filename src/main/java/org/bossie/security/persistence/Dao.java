@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.bossie.security.domain.Collection;
@@ -22,10 +23,10 @@ public class Dao {
 		Group stubru = new Group("Studio Brussel");
 		Group canvas = new Group("Canvas");
 
-		User siska = new User("siska", "siska", EnumSet.of(USER));
-		User chris = new User("chris", "chris", EnumSet.of(USER));
-		User bert = new User("bert", "bert", EnumSet.of(USER));
-		User adriaan = new User("adriaan", "adriaan", EnumSet.of(ADMIN));
+		User siska = new User(1L, "siska", "siska", EnumSet.of(USER));
+		User chris = new User(2L, "chris", "chris", EnumSet.of(USER));
+		User bert = new User(3L, "bert", "bert", EnumSet.of(USER));
+		User adriaan = new User(4L, "adriaan", "adriaan", EnumSet.of(ADMIN));
 
 		stubru.addMember(siska);
 		stubru.addMember(bert);
@@ -51,6 +52,14 @@ public class Dao {
 				.filter(user -> username.equals(user.getUsername()))
 				.findFirst()
 				.orElseThrow(() -> new UsernameNotFoundException(username));
+	}
+
+	public Set<Collection> getUsersCollections(long userId) {
+		return users.stream()
+				.filter(user -> user.getId().equals(userId))
+				.findFirst()
+				.flatMap(user -> Optional.of(user.getCollections()))
+				.orElseThrow(() -> new IllegalArgumentException(String.valueOf(userId)));
 	}
 
 	public void deleteCollection(long collectionId) {
