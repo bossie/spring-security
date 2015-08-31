@@ -16,8 +16,15 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+/**
+ * Permission to access collection is derived from the user<->group<->collection situation as it exists in the domain DB,
+ * so this is like a 'passive' permission evaluator.
+ * Another option is to actively assign ACL's with permissions to specific domain objects for certain users/authorities (and
+ * also inherit permissions from parent ACL's, for example). Check the Spring ACL module for an appropriate ACL permission
+ * evaluator.
+ */
 @Component
-class SomePermissionEvaluator implements PermissionEvaluator {
+class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implements PermissionEvaluator {
 
 	@Autowired
 	private Dao dao;
@@ -54,6 +61,6 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 	@Bean
 	PermissionEvaluator permissionEvaluator() {
-		return new SomePermissionEvaluator();
+		return new AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator();
 	}
 }
