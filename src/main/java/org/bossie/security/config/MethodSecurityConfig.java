@@ -41,7 +41,7 @@ class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implem
 			String username = authentication.getName();
 			long collectionId = (long) targetId;
 
-			return authentication.getAuthorities().contains(USER) && isMemberOfGroupOwningCollection(username, collectionId);
+			return authentication.getAuthorities().contains(ROLE_USER) && isMemberOfGroupOwningCollection(username, collectionId);
 		}
 
 		return false;

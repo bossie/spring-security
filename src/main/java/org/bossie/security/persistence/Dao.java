@@ -23,10 +23,10 @@ public class Dao {
 		Group stubru = new Group("Studio Brussel");
 		Group canvas = new Group("Canvas");
 
-		User siska = new User(1L, "siska", "siska", EnumSet.of(USER));
-		User chris = new User(2L, "chris", "chris", EnumSet.of(USER));
-		User bert = new User(3L, "bert", "bert", EnumSet.of(USER));
-		User adriaan = new User(4L, "adriaan", "adriaan", EnumSet.of(ADMIN));
+		User siska = new User(1L, "siska", "siska", EnumSet.of(ROLE_USER));
+		User chris = new User(2L, "chris", "chris", EnumSet.of(ROLE_USER));
+		User bert = new User(3L, "bert", "bert", EnumSet.of(ROLE_USER));
+		User adriaan = new User(4L, "adriaan", "adriaan", EnumSet.of(ROLE_ADMIN));
 
 		stubru.addMember(siska);
 		stubru.addMember(bert);
