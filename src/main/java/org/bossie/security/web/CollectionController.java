@@ -35,7 +35,7 @@ public class CollectionController {
 	}
 
 	@RequestMapping(path="/collection/{collectionId}", method=DELETE)
-	@PreAuthorize("hasAuthority('ADMIN') || (hasAuthority('USER') && hasPermission(#collectionId, 'org.bossie.security.domain.Collection', null))")
+	@PreAuthorize("hasAuthority('ADMIN') || hasPermission(#collectionId, 'org.bossie.security.domain.Collection', 'delete')")
 	public @ResponseBody void deleteCollection(@PathVariable("collectionId") long collectionId) {
 		dao.deleteCollection(collectionId);
 	}

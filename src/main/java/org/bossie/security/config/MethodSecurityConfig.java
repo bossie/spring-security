@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.bossie.security.domain.Collection;
 import org.bossie.security.domain.User;
+import static org.bossie.security.domain.Authority.*;
 import org.bossie.security.persistence.Dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,14 +38,20 @@ class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implem
 	@Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
 		if (Collection.class.getName().equals(targetType)) {
-			long targetCollectionId = (long) targetId;
-			User user = dao.getUserByUsername(authentication.getName());
+			String username = authentication.getName();
+			long collectionId = (long) targetId;
 
-			return user.getCollections().stream()
-					.anyMatch(collection -> collection.getId() == targetCollectionId);
+			return authentication.getAuthorities().contains(USER) && isMemberOfGroupOwningCollection(username, collectionId);
 		}
 
 		return false;
+	}
+
+	private boolean isMemberOfGroupOwningCollection(String username, long collectionId) {
+		User user = dao.getUserByUsername(username);
+
+		return user.getCollections().stream()
+				.anyMatch(collection -> collection.getId() == collectionId);
 	}
 }
 
