@@ -3,9 +3,10 @@ package org.bossie.security.config;
 import java.io.Serializable;
 
 import org.bossie.security.domain.Collection;
-import org.bossie.security.domain.User;
+
 import static org.bossie.security.domain.Authority.*;
-import org.bossie.security.persistence.Dao;
+
+import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Component;
 class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implements PermissionEvaluator {
 
 	@Autowired
-	private Dao dao;
+	private SecurityService securityService;
 
 	@Override
 	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
@@ -41,17 +42,11 @@ class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implem
 			String username = authentication.getName();
 			long collectionId = (long) targetId;
 
-			return authentication.getAuthorities().contains(ROLE_USER) && isMemberOfGroupOwningCollection(username, collectionId);
+			return authentication.getAuthorities().contains(ROLE_USER) &&
+					securityService.isMemberOfGroupOwningCollection(username, collectionId);
 		}
 
 		return false;
-	}
-
-	private boolean isMemberOfGroupOwningCollection(String username, long collectionId) {
-		User user = dao.getUserByUsername(username);
-
-		return user.getCollections().stream()
-				.anyMatch(collection -> collection.getId() == collectionId);
 	}
 }
 

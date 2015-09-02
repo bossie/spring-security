@@ -1,6 +1,6 @@
 package org.bossie.security.config;
 
-import org.bossie.security.persistence.Dao;
+import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 class SomeClass {}
@@ -27,7 +28,7 @@ class SomeClass {}
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private Dao dao;
+	private SecurityService securityService;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -48,7 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(new UserDetailsService() {
 			@Override public UserDetails loadUserByUsername(String username) {
-				return dao.getUserByUsername(username);
+				return securityService.getUserByUsername(username)
+						.orElseThrow(() -> new UsernameNotFoundException(username));
 			}
 		});
 	}

@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.bossie.security.domain.Collection;
 import org.bossie.security.domain.User;
-import org.bossie.security.persistence.Dao;
+import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,28 +20,28 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class CollectionController {
 
 	@Autowired
-	private Dao dao;
+	private SecurityService securityService;
 
 	@RequestMapping(path="/collection", method=GET)
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	public @ResponseBody Set<Collection> getOwnCollections(@AuthenticationPrincipal User user) {
-		return user.getCollections();
+	public @ResponseBody Set<Collection> getOwnManagedCollections(@AuthenticationPrincipal User user) {
+		return securityService.getManagedCollections(user);
 	}
 
 	@RequestMapping(path="/user/{userId}/collection", method=GET)
 	@PreAuthorize("hasRole('ADMIN') || (hasRole('USER') && principal.id == #userId)")
-	public @ResponseBody Set<Collection> getUsersCollections(@PathVariable("userId") long userId) {
-		return dao.getUsersCollections(userId);
+	public @ResponseBody Set<Collection> getUsersManagedCollections(@PathVariable("userId") long userId) {
+		return securityService.getUsersManagedCollections(userId);
 	}
 
 	@RequestMapping(path="/collection/{collectionId}", method=DELETE)
 	@PreAuthorize("hasRole('ADMIN') || hasPermission(#collectionId, 'org.bossie.security.domain.Collection', 'delete')")
 	public @ResponseBody void deleteCollection(@PathVariable("collectionId") long collectionId) {
-		dao.deleteCollection(collectionId);
+		securityService.deleteCollection(collectionId);
 	}
 
 	@RequestMapping(path="/collection/{collectionId}", method=POST)
 	public @ResponseBody void addItem(@PathVariable("collectionId") long collectionId, @RequestBody Object item) {
-		dao.addItem(collectionId, item);
+		securityService.addItem(collectionId, item);
 	}
 }

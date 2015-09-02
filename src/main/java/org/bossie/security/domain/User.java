@@ -1,5 +1,6 @@
 package org.bossie.security.domain;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +21,10 @@ public class User extends org.springframework.security.core.userdetails.User {
 		return id;
 	}
 
+	public Set<Group> getGroups() {
+		return Collections.unmodifiableSet(groups);
+	}
+
 	public boolean addTo(Group group) {
 		boolean added = groups.add(group);
 
@@ -28,14 +33,6 @@ public class User extends org.springframework.security.core.userdetails.User {
 		}
 
 		return added;
-	}
-
-	public Set<Collection> getCollections() {
-		Set<Collection> results = new HashSet<>();
-
-		groups.forEach(group -> results.addAll(group.getCollections()));
-
-		return results;
 	}
 
 	@Override

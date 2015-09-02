@@ -12,11 +12,10 @@ import java.util.Set;
 import org.bossie.security.domain.Collection;
 import org.bossie.security.domain.Group;
 import org.bossie.security.domain.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class Dao {
+public class SecurityDao {
 	private final Set<User> users = new HashSet<>();
 
 	{
@@ -45,30 +44,19 @@ public class Dao {
 		return Collections.unmodifiableSet(users);
 	}
 
-	public User getUserByUsername(String username) throws UsernameNotFoundException {
+	public Optional<User> getUserById(long userId) {
+		System.out.println("Dao::getUserById");
+
+		return users.stream()
+				.filter(user -> user.getId() == userId)
+				.findFirst();
+	}
+
+	public Optional<User> getUserByUsername(String username) {
 		System.out.println("Dao::getUserByUsername");
 
 		return users.stream()
 				.filter(user -> username.equals(user.getUsername()))
-				.findFirst()
-				.orElseThrow(() -> new UsernameNotFoundException(username));
-	}
-
-	public Set<Collection> getUsersCollections(long userId) {
-		return users.stream()
-				.filter(user -> user.getId().equals(userId))
-				.findFirst()
-				.flatMap(user -> Optional.of(user.getCollections()))
-				.orElseThrow(() -> new IllegalArgumentException(String.valueOf(userId)));
-	}
-
-	public void deleteCollection(long collectionId) {
-		System.out.println("Dao::deleteCollection");
-		// TODO: delete collection
-	}
-
-	public void addItem(long collectionId, Object item) {
-		System.out.println("Dao::addItem");
-		// TODO: add item to collection
+				.findFirst();
 	}
 }
