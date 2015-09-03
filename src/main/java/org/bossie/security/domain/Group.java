@@ -5,30 +5,41 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Group {
-	private final String name;
-	private final Set<User> members = new HashSet<>();
-	private final Set<Collection> collections = new HashSet<>();
+	private Long id;
+	private String name;
+	private Set<User> members = new HashSet<>();
+	private Set<Collection> collections = new HashSet<>();
 
 	public Group(String name) {
 		this.name = name;
+	}
+
+	protected Group() {}
+
+	public Long getId() {
+		return id;
+	}
+
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	@SuppressWarnings("unused")
+	private void setName(String name) {
+		this.name = name;
+	}
+
 	public Set<User> getMembers() {
 		return Collections.unmodifiableSet(members);
 	}
 
-	public boolean addMember(User user) {
-		boolean added = members.add(user);
-
-		if (added) {
-			user.addTo(this);
-		}
-
-		return added;
+	public void addMember(User user) {
+		members.add(user);
 	}
 
 	public Set<Collection> getCollections() {

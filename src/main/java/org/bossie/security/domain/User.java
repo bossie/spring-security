@@ -1,42 +1,31 @@
 package org.bossie.security.domain;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+public class User {
+	private Long id;
 
-import org.springframework.security.core.GrantedAuthority;
+	private String username;
 
-@SuppressWarnings("serial")
-public class User extends org.springframework.security.core.userdetails.User {
-
-	private final Long id;
-	private final Set<Group> groups = new HashSet<>();
-
-	public User(Long id, String username, String password, java.util.Collection<? extends GrantedAuthority> authorities) {
-		super(username, password, authorities);
-		this.id = id;
+	public User(String username) {
+		this.username = username;
 	}
+
+	protected User() {}
 
 	public Long getId() {
 		return id;
 	}
 
-	public Set<Group> getGroups() {
-		return Collections.unmodifiableSet(groups);
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
 	}
 
-	public boolean addTo(Group group) {
-		boolean added = groups.add(group);
-
-		if (added) {
-			group.addMember(this);
-		}
-
-		return added;
+	public String getUsername() {
+		return username;
 	}
 
-	@Override
-	public void eraseCredentials() {
-		// see caveat @ Javadoc of org.springframework.security.core.userdetails.User
+	@SuppressWarnings("unused")
+	private void setUsername(String username) {
+		this.username = username;
 	}
 }

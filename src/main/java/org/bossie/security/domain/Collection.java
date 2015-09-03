@@ -1,20 +1,30 @@
 package org.bossie.security.domain;
 
 public class Collection {
-	private final Long id;
-	private final String name;
+	private Long id;
+	private String name;
 
-	public Collection(Long id, String name) {
-		this.id = id;
+	public Collection(String name) {
 		this.name = name;
+	}
+
+	protected Collection() {}
+
+	public Long getId() {
+		return id;
+	}
+
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
-	public Long getId() {
-		return id;
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.bossie.security.domain">
+	<class name="Group" table="groups">
+		<id type="long" />
+
+		<property name="name" unique="true" />
+
+		<set name="members" table="user_group" access="field">
+			<key column="group_id" />
+			<many-to-many class="User" column="user_id" />
+		</set>
+
+		<set name="collections" access="field" inverse="true">
+		    <key column="group_id" />
+		    <one-to-many class="Collection" />
+		</set>
+	</class>
+</hibernate-mapping>

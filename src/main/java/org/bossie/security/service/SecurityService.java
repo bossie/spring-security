@@ -1,7 +1,5 @@
 package org.bossie.security.service;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,25 +19,12 @@ public class SecurityService {
 		return securityDao.getUserByUsername(username);
 	}
 
-	public Set<Collection> getManagedCollections(User user) {
-		Set<Collection> results = new HashSet<>();
-
-		user.getGroups().forEach(group -> results.addAll(group.getCollections()));
-
-		return results;
-	}
-
-	public Set<Collection> getUsersManagedCollections(long userId) {
-		return securityDao.getUserById(userId)
-				.map(user -> getManagedCollections(user))
-				.orElse(Collections.emptySet());
+	public Set<Collection> getManagedCollections(String username) {
+		return securityDao.getManagedCollections(username);
 	}
 
 	public boolean isMemberOfGroupOwningCollection(String username, long collectionId) {
-		return getUserByUsername(username)
-				.map(user -> getManagedCollections(user).stream()
-						.anyMatch(collection -> collection.getId() == collectionId))
-				.orElse(false);
+		return securityDao.isMemberOfGroupOwningCollection(username, collectionId);
 	}
 
 	public void deleteCollection(long collectionId) {

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.bossie.security.domain">
+	<class name="User" table="users">
+	    <id type="long" />
+
+	    <property name="username" unique="true" />
+
+	    <set name="groups" table="user_group" inverse="true" access="noop">
+	        <key column="user_id" />
+	        <many-to-many class="Group" column="group_id" />
+	    </set>
+	</class>
+
+	<query name="getManagedCollections"><![CDATA[
+		select collection from Collection collection
+		join collection.group.members as members
+		where members.username = :username
+	]]></query>
+
+	<query name="isMemberOfGroupOwningCollection"><![CDATA[
+		select count(*)
+		from Collection collection
+		join collection.group.members as members
+		where members.username = :username and collection.id = :collectionId)
+	]]></query>
+</hibernate-mapping>

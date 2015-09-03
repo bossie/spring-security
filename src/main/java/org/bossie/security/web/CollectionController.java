@@ -1,13 +1,17 @@
 package org.bossie.security.web;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.bossie.security.domain.Collection;
 import org.bossie.security.domain.User;
 import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,14 +28,8 @@ public class CollectionController {
 
 	@RequestMapping(path="/collection", method=GET)
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	public @ResponseBody Set<Collection> getOwnManagedCollections(@AuthenticationPrincipal User user) {
-		return securityService.getManagedCollections(user);
-	}
-
-	@RequestMapping(path="/user/{userId}/collection", method=GET)
-	@PreAuthorize("hasRole('ADMIN') || (hasRole('USER') && principal.id == #userId)")
-	public @ResponseBody Set<Collection> getUsersManagedCollections(@PathVariable("userId") long userId) {
-		return securityService.getUsersManagedCollections(userId);
+	public @ResponseBody Set<Collection> getOwnManagedCollections(@AuthenticationPrincipal UserDetails user) {
+		return securityService.getManagedCollections(user.getUsername());
 	}
 
 	@RequestMapping(path="/collection/{collectionId}", method=DELETE)
@@ -43,5 +41,15 @@ public class CollectionController {
 	@RequestMapping(path="/collection/{collectionId}", method=POST)
 	public @ResponseBody void addItem(@PathVariable("collectionId") long collectionId, @RequestBody Object item) {
 		securityService.addItem(collectionId, item);
+	}
+
+	@RequestMapping(path="/user/{username}", method=GET)
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<User> getUser(@PathVariable("username") String username) {
+		Optional<User> user = securityService.getUserByUsername(username);
+
+		return user.isPresent()
+				? new ResponseEntity<User>(user.get(), HttpStatus.OK)
+				: new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 }

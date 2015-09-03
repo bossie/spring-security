@@ -1,12 +1,9 @@
 package org.bossie.security.domain;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-public enum Authority implements GrantedAuthority {
-	ROLE_USER, ROLE_ADMIN;
-
-	@Override
-	public String getAuthority() {
-		return toString();
-	}
+public interface Authority {
+	GrantedAuthority ROLE_USER = new SimpleGrantedAuthority("ROLE_USER");
+	GrantedAuthority ROLE_ADMIN = new SimpleGrantedAuthority("ROLE_ADMIN");
 }

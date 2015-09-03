@@ -1,62 +1,80 @@
 package org.bossie.security.persistence;
 
-import static org.bossie.security.domain.Authority.*;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.bossie.security.domain.Collection;
-import org.bossie.security.domain.Group;
 import org.bossie.security.domain.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class SecurityDao {
-	private final Set<User> users = new HashSet<>();
 
-	{
-		Group stubru = new Group("Studio Brussel");
-		Group canvas = new Group("Canvas");
-
-		User siska = new User(1L, "siska", "siska", EnumSet.of(ROLE_USER));
-		User chris = new User(2L, "chris", "chris", EnumSet.of(ROLE_USER));
-		User bert = new User(3L, "bert", "bert", EnumSet.of(ROLE_USER));
-		User adriaan = new User(4L, "adriaan", "adriaan", EnumSet.of(ROLE_ADMIN));
-
-		stubru.addMember(siska);
-		stubru.addMember(bert);
-		canvas.addMember(chris);
-		canvas.addMember(bert);
-
-		stubru.addCollection(new Collection(1L, "Music For Life"));
-		canvas.addCollection(new Collection(2L, "Cobra's Classic Battle"));
-
-		users.addAll(Arrays.asList(siska, chris, bert, adriaan));
-	}
-
-	public Set<User> getUsers() {
-		System.out.println("Dao::getUsers");
-
-		return Collections.unmodifiableSet(users);
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	public Optional<User> getUserById(long userId) {
-		System.out.println("Dao::getUserById");
-
-		return users.stream()
-				.filter(user -> user.getId() == userId)
-				.findFirst();
+		return fromSession(session -> {
+			User user = (User) session.get(User.class, userId);
+			return Optional.ofNullable(user);
+		});
 	}
 
 	public Optional<User> getUserByUsername(String username) {
-		System.out.println("Dao::getUserByUsername");
+		return fromSession(session -> {
+			User user = (User) session.createQuery("from User user where user.username = :username")
+				.setString("username", username)
+				.uniqueResult();
 
-		return users.stream()
-				.filter(user -> username.equals(user.getUsername()))
-				.findFirst();
+			return Optional.ofNullable(user);
+		});
+	}
+
+	public Set<Collection> getManagedCollections(String username) {
+		return fromSession(session -> {
+			@SuppressWarnings("unchecked")
+			List<Collection> collections = session.getNamedQuery("getManagedCollections")
+				.setString("username", username)
+				.list();
+
+			return new HashSet<>(collections);
+		});
+	}
+
+	public boolean isMemberOfGroupOwningCollection(String username, long collectionId) {
+		return fromSession(session -> {
+			long count = (long) session.getNamedQuery("isMemberOfGroupOwningCollection")
+				.setString("username", username)
+				.setLong("collectionId", collectionId)
+				.uniqueResult();
+
+			return count > 0;
+		});
+	}
+
+	private <R> R fromSession(Function<Session, R> function) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+
+		try {
+			tx = session.beginTransaction();
+
+			R result = function.apply(session);
+			tx.commit();
+
+			return result;
+		} catch (Exception e) {
+			if (tx != null) tx.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
 	}
 }
