@@ -15,7 +15,8 @@
 	</class>
 
 	<query name="getManagedCollections"><![CDATA[
-		select collection from Collection collection
+		select collection
+		from Collection collection
 		join collection.group.members as members
 		where members.username = :username
 	]]></query>

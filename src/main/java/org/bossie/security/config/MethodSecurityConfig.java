@@ -1,11 +1,13 @@
 package org.bossie.security.config;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.bossie.security.domain.Collection;
 
 import static org.bossie.security.domain.Authority.*;
 
+import org.bossie.security.persistence.DomainService;
 import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,9 @@ class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implem
 	@Autowired
 	private SecurityService securityService;
 
+	@Autowired
+	private DomainService domainService;
+
 	@Override
 	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
 		throw new UnsupportedOperationException();
@@ -39,14 +44,23 @@ class AccessToCollectionPermittedIfMemberOfOwningGroupPermissionEvaluator implem
 	@Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
 		if (Collection.class.getName().equals(targetType)) {
-			String username = authentication.getName();
 			long collectionId = (long) targetId;
 
-			return authentication.getAuthorities().contains(ROLE_USER) &&
-					securityService.isMemberOfGroupOwningCollection(username, collectionId);
+			return hasPermission(authentication, collectionId);
+		} else if ("org.bossie.security.domain.Item".equals(targetType)) {
+			long itemId = (long) targetId;
+			Map<String, ?> item = domainService.getItem(itemId);
+			long collectionId = (Long) item.get("collection_id");
+
+			return hasPermission(authentication, collectionId);
 		}
 
 		return false;
+	}
+
+	private boolean hasPermission(Authentication authentication, long collectionId) {
+		return authentication.getAuthorities().contains(ROLE_USER) &&
+				securityService.isMemberOfGroupOwningCollection(authentication.getName(), collectionId);
 	}
 }
 

@@ -38,9 +38,16 @@ public class CollectionController {
 		securityService.deleteCollection(collectionId);
 	}
 
-	@RequestMapping(path="/collection/{collectionId}", method=POST)
-	public @ResponseBody void addItem(@PathVariable("collectionId") long collectionId, @RequestBody Object item) {
+	@RequestMapping(path="/collection/{collectionId}/item", method=POST)
+	public ResponseEntity<Void> addItem(@PathVariable("collectionId") long collectionId, @RequestBody Object item) {
 		securityService.addItem(collectionId, item);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	@RequestMapping(path="/collection/{collectionId}/item/{itemId}", method=PUT)
+	@PreAuthorize("hasRole('ADMIN') || hasPermission(#itemId, 'org.bossie.security.domain.Item', 'write')")
+	public @ResponseBody void updateItem(@PathVariable long itemId, @RequestBody Object item) {
+		securityService.updateItem(itemId, item);
 	}
 
 	@RequestMapping(path="/user/{username}", method=GET)

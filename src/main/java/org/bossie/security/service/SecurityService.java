@@ -36,4 +36,9 @@ public class SecurityService {
 		System.out.println("addItem");
 		// TODO: add item to collection
 	}
+
+	public void updateItem(long itemId, Object item) {
+		System.out.println("addItem");
+		// TODO: update item
+	}
 }
