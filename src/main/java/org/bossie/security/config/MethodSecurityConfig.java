@@ -7,7 +7,7 @@ import org.bossie.security.domain.Collection;
 
 import static org.bossie.security.domain.Authority.*;
 
-import org.bossie.security.persistence.DomainService;
+import org.bossie.security.service.DomainService;
 import org.bossie.security.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
